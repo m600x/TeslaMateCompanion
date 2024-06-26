@@ -1,6 +1,6 @@
 # TeslaMate Companion dashboard
 
-![image](img/img.png)
+![main](img/main.png)
 
 **WARNING: THIS WILL MOST LIKELY NOT WORK EASILY AS IT REQUIRE A PRECISE ENV.**
 
@@ -10,8 +10,6 @@ This is a repo containing raw code to run a small Tesla remote dashboard on your
 Is it useful? No one can answer that but it has it's use for me.
 
 I won't adapt it to make it work for everyone since no one will read this. More like a memo for me.
-
-Plus everything is in baguette for once.
 
 ## Functions
 - State of the car
