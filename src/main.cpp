@@ -6,12 +6,19 @@
 #include <ArduinoJson.h>
 #include "WiFi.h"
 
-#define SSID                      "REPLACE_ME"
-#define PASS                      "REPLACE_ME"
-#define API_URL                   "REPLACE_ME"
-#define API_HEADER                "REPLACE_ME"
-#define API_SECRET                "REPLACE_ME"
-#define POLLING_INTERVAL_IN_SEC   60
+#define SSID                             "REPLACE_ME"
+#define PASS                             "REPLACE_ME"
+#define WIFI_RECONNECT_TIMEOUT_IN_SEC    10
+#define API_URL                          "REPLACE_ME"
+#define API_HEADER                       "REPLACE_ME"
+#define API_SECRET                       "REPLACE_ME"
+#define API_TIMEOUT_IN_SEC               2
+#define POLLING_INTERVAL_IN_SEC          1
+
+#define GREEN                           0x00B200
+#define RED                             0xFF0000
+#define GREY                            0x303030
+#define ORANGE                          0xE08700
 
 HTTPClient http;
 TFT_eSPI tft = TFT_eSPI();
@@ -21,6 +28,7 @@ static const uint16_t screenHeight = 170;
 static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[ screenWidth * screenHeight / 10 ];
 
+int wifi_elapsed_time = 0;
 String state = "";
 String since = "";
 String odometer = "";
@@ -49,15 +57,27 @@ void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
 }
 
 void wifi_connection() {
+    Serial.println("Start wifi connection");
     lv_disp_load_scr(ui_wifi);
     lv_label_set_text(ui_ssidtext, SSID);
     WiFi.mode(WIFI_STA);
     WiFi.begin(SSID, PASS);
-    while (WiFi.status() != WL_CONNECTED) {
+    for (int i = 0; i < WIFI_RECONNECT_TIMEOUT_IN_SEC * 100 ; i++) {
+        if (WiFi.status() == WL_CONNECTED)
+            break ;
         Serial.print('.');
+        if (i % 100 == 0) {
+            wifi_elapsed_time += 1;
+            lv_label_set_text(ui_elapsedtime, (String(wifi_elapsed_time) + "s").c_str());
+        }
         lv_timer_handler();
-        delay(5);
+        delay(10);
     }
+    if (WiFi.status() != WL_CONNECTED) {
+        WiFi.disconnect();
+        wifi_connection();
+    }
+    wifi_elapsed_time = 0;
     lv_disp_load_scr(ui_main);
     lv_timer_handler();
 }
@@ -81,14 +101,14 @@ void setup()
 }
 
 void update() {
-    Serial.println("Start");
+    Serial.println("Query data");
     http.begin(API_URL);
-    http.setTimeout(5000);
+    http.setTimeout(API_TIMEOUT_IN_SEC * 1000);
     http.addHeader(API_HEADER, API_SECRET);
     int httpCode = http.GET();
     String payload = http.getString();
     http.end();
-    Serial.println("HTTP code: " + String(httpCode));
+    Serial.println("Response code: " + String(httpCode));
     if (httpCode == 200) {
         DynamicJsonDocument doc(1024);
         deserializeJson(doc, payload);
@@ -119,21 +139,21 @@ void set_display() {
     lv_label_set_text(ui_tempoutsidenumber, (temp_outside).c_str());
     lv_arc_set_value(ui_tempoutsidearc, temp_outside.toInt());
 
-    lv_obj_set_style_bg_color(ui_healthpanel, lv_color_hex(status_healthy ? 0x00B200 : 0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT );
-    lv_obj_set_style_bg_color(ui_lockedpanel, lv_color_hex(status_locked ? 0x00B200 : 0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT );
-    lv_obj_set_style_bg_color(ui_sentrypanel, lv_color_hex(status_sentry ? 0x00B200 : 0x303030), LV_PART_MAIN | LV_STATE_DEFAULT );
-    lv_obj_set_style_bg_color(ui_userpanel, lv_color_hex(status_present ? 0x00B200 : 0x303030), LV_PART_MAIN | LV_STATE_DEFAULT );
-    lv_obj_set_style_bg_color(ui_windowspanel, lv_color_hex(status_windows ? 0xFF0000 : 0x00B200), LV_PART_MAIN | LV_STATE_DEFAULT );
-    lv_obj_set_style_bg_color(ui_doorspanel, lv_color_hex(status_doors ? 0xFF0000 : 0x00B200), LV_PART_MAIN | LV_STATE_DEFAULT );
-    lv_obj_set_style_bg_color(ui_frunkpanel, lv_color_hex(status_frunk ? 0xFF0000 : 0x00B200), LV_PART_MAIN | LV_STATE_DEFAULT );
-    lv_obj_set_style_bg_color(ui_trunkpanel, lv_color_hex(status_trunk ? 0xFF0000 : 0x00B200), LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_obj_set_style_bg_color(ui_healthpanel, lv_color_hex(status_healthy ? GREEN : RED), LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_obj_set_style_bg_color(ui_lockedpanel, lv_color_hex(status_locked ? GREEN : RED), LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_obj_set_style_bg_color(ui_sentrypanel, lv_color_hex(status_sentry ? GREEN : GREY), LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_obj_set_style_bg_color(ui_userpanel, lv_color_hex(status_present ? GREEN : GREY), LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_obj_set_style_bg_color(ui_windowspanel, lv_color_hex(status_windows ? RED : GREEN), LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_obj_set_style_bg_color(ui_doorspanel, lv_color_hex(status_doors ? RED : GREEN), LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_obj_set_style_bg_color(ui_frunkpanel, lv_color_hex(status_frunk ? RED : GREEN), LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_obj_set_style_bg_color(ui_trunkpanel, lv_color_hex(status_trunk ? RED : GREEN), LV_PART_MAIN | LV_STATE_DEFAULT );
 
-    lv_color_t battery_color = lv_color_hex(0x00B200);
+    lv_color_t battery_color = lv_color_hex(GREEN);
     if (battery_level.toInt() <= 10) {
-        battery_color = lv_color_hex(0xFF0000);
+        battery_color = lv_color_hex(RED);
     }
     else if (battery_level.toInt() <= 20) {
-        battery_color = lv_color_hex(0xE08700);
+        battery_color = lv_color_hex(ORANGE);
     }
     lv_obj_set_style_bg_color(ui_Panel3, battery_color, LV_PART_MAIN | LV_STATE_DEFAULT );
     lv_label_set_text(ui_pctnumber, battery_level.c_str());

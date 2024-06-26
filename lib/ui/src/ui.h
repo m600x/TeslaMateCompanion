@@ -25,48 +25,49 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 
-// SCREEN: ui_wifi
-void ui_wifi_screen_init(void);
-extern lv_obj_t *ui_wifi;
-extern lv_obj_t *ui_Spinner2;
-extern lv_obj_t *ui_Label13;
-extern lv_obj_t *ui_Label14;
-extern lv_obj_t *ui_ssidtext;
 // SCREEN: ui_main
 void ui_main_screen_init(void);
 extern lv_obj_t *ui_main;
 extern lv_obj_t *ui_status;
-extern lv_obj_t *ui_Panel3;
-extern lv_obj_t *ui_pctbar;
-extern lv_obj_t *ui_pctnumber;
 extern lv_obj_t *ui_kmstotal;
-extern lv_obj_t *ui_kmsestimated;
-extern lv_obj_t *ui_Label9;
-extern lv_obj_t *ui_Label10;
 extern lv_obj_t *ui_Panel1;
+extern lv_obj_t *ui_labelinterieur;
 extern lv_obj_t *ui_tempinsidearc;
-extern lv_obj_t *ui_tempoutsidearc;
-extern lv_obj_t *ui_Label11;
-extern lv_obj_t *ui_Label1;
 extern lv_obj_t *ui_tempinsidenumber;
+extern lv_obj_t *ui_Panel2;
+extern lv_obj_t *ui_labelexterieur;
+extern lv_obj_t *ui_tempoutsidearc;
 extern lv_obj_t *ui_tempoutsidenumber;
 extern lv_obj_t *ui_healthpanel;
-extern lv_obj_t *ui_imghealth;
 extern lv_obj_t *ui_lockedpanel;
-extern lv_obj_t *ui_imglock;
 extern lv_obj_t *ui_sentrypanel;
-extern lv_obj_t *ui_imgsentry;
 extern lv_obj_t *ui_userpanel;
-extern lv_obj_t *ui_imguser;
 extern lv_obj_t *ui_windowspanel;
-extern lv_obj_t *ui_imgwindows;
 extern lv_obj_t *ui_doorspanel;
-extern lv_obj_t *ui_imgdoors;
 extern lv_obj_t *ui_frunkpanel;
-extern lv_obj_t *ui_imgfrunk;
 extern lv_obj_t *ui_trunkpanel;
-extern lv_obj_t *ui_imgtrunk;
-extern lv_obj_t *ui_Label17;
+extern lv_obj_t *ui_Label1;
+extern lv_obj_t *ui_Label2;
+extern lv_obj_t *ui_kmsestimated;
+extern lv_obj_t *ui_Panel3;
+extern lv_obj_t *ui_pctnumber;
+extern lv_obj_t *ui_labelpct;
+extern lv_obj_t *ui_pctbar;
+extern lv_obj_t *ui_Image1;
+extern lv_obj_t *ui_Image2;
+extern lv_obj_t *ui_Image3;
+extern lv_obj_t *ui_Image4;
+extern lv_obj_t *ui_Image5;
+extern lv_obj_t *ui_Image6;
+extern lv_obj_t *ui_Image7;
+extern lv_obj_t *ui_Image8;
+// SCREEN: ui_wifi
+void ui_wifi_screen_init(void);
+extern lv_obj_t *ui_wifi;
+extern lv_obj_t *ui_Spinner1;
+extern lv_obj_t *ui_Label3;
+extern lv_obj_t *ui_ssidtext;
+extern lv_obj_t *ui_elapsedtime;
 extern lv_obj_t *ui____initial_actions0;
 
 LV_IMG_DECLARE( ui_img_health_png);   // assets/health.png

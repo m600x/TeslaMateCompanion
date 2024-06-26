@@ -1,5 +1,5 @@
-SET(SOURCES ui_wifi.c
-    ui_main.c
+SET(SOURCES ui_main.c
+    ui_wifi.c
     ui.c
     ui_comp_hook.c
     ui_helpers.c

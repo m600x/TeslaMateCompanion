@@ -9,50 +9,51 @@
 ///////////////////// VARIABLES ////////////////////
 
 
-// SCREEN: ui_wifi
-void ui_wifi_screen_init(void);
-lv_obj_t *ui_wifi;
-lv_obj_t *ui_Spinner2;
-lv_obj_t *ui_Label13;
-lv_obj_t *ui_Label14;
-lv_obj_t *ui_ssidtext;
-
-
 // SCREEN: ui_main
 void ui_main_screen_init(void);
 lv_obj_t *ui_main;
 lv_obj_t *ui_status;
-lv_obj_t *ui_Panel3;
-lv_obj_t *ui_pctbar;
-lv_obj_t *ui_pctnumber;
 lv_obj_t *ui_kmstotal;
-lv_obj_t *ui_kmsestimated;
-lv_obj_t *ui_Label9;
-lv_obj_t *ui_Label10;
 lv_obj_t *ui_Panel1;
+lv_obj_t *ui_labelinterieur;
 lv_obj_t *ui_tempinsidearc;
-lv_obj_t *ui_tempoutsidearc;
-lv_obj_t *ui_Label11;
-lv_obj_t *ui_Label1;
 lv_obj_t *ui_tempinsidenumber;
+lv_obj_t *ui_Panel2;
+lv_obj_t *ui_labelexterieur;
+lv_obj_t *ui_tempoutsidearc;
 lv_obj_t *ui_tempoutsidenumber;
 lv_obj_t *ui_healthpanel;
-lv_obj_t *ui_imghealth;
 lv_obj_t *ui_lockedpanel;
-lv_obj_t *ui_imglock;
 lv_obj_t *ui_sentrypanel;
-lv_obj_t *ui_imgsentry;
 lv_obj_t *ui_userpanel;
-lv_obj_t *ui_imguser;
 lv_obj_t *ui_windowspanel;
-lv_obj_t *ui_imgwindows;
 lv_obj_t *ui_doorspanel;
-lv_obj_t *ui_imgdoors;
 lv_obj_t *ui_frunkpanel;
-lv_obj_t *ui_imgfrunk;
 lv_obj_t *ui_trunkpanel;
-lv_obj_t *ui_imgtrunk;
-lv_obj_t *ui_Label17;
+lv_obj_t *ui_Label1;
+lv_obj_t *ui_Label2;
+lv_obj_t *ui_kmsestimated;
+lv_obj_t *ui_Panel3;
+lv_obj_t *ui_pctnumber;
+lv_obj_t *ui_labelpct;
+lv_obj_t *ui_pctbar;
+lv_obj_t *ui_Image1;
+lv_obj_t *ui_Image2;
+lv_obj_t *ui_Image3;
+lv_obj_t *ui_Image4;
+lv_obj_t *ui_Image5;
+lv_obj_t *ui_Image6;
+lv_obj_t *ui_Image7;
+lv_obj_t *ui_Image8;
+
+
+// SCREEN: ui_wifi
+void ui_wifi_screen_init(void);
+lv_obj_t *ui_wifi;
+lv_obj_t *ui_Spinner1;
+lv_obj_t *ui_Label3;
+lv_obj_t *ui_ssidtext;
+lv_obj_t *ui_elapsedtime;
 lv_obj_t *ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -74,8 +75,8 @@ void ui_init( void )
 lv_disp_t *dispp = lv_disp_get_default();
 lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), true, LV_FONT_DEFAULT);
 lv_disp_set_theme(dispp, theme);
-ui_wifi_screen_init();
 ui_main_screen_init();
+ui_wifi_screen_init();
 ui____initial_actions0 = lv_obj_create(NULL);
-lv_disp_load_scr( ui_wifi);
+lv_disp_load_scr( ui_main);
 }
