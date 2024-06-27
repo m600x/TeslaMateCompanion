@@ -15,8 +15,8 @@
 #define API_AUTH         true
 #define API_USER         "REPLACE_ME"
 #define API_PASS         "REPLACE_ME"
-#define POLLING_INTERVAL 30
 
+#define POLLING_INTERVAL 30
 #define GREEN            0x00B200
 #define RED              0xFF0000
 #define GREY             0x303030
@@ -47,6 +47,7 @@ bool status_trunk = false;
 bool status_frunk = false;
 bool status_present = false;
 String unit_length = "";
+String unit_temp = "";
 
 void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p )
 {
@@ -137,6 +138,7 @@ void update() {
         status_frunk =               (bool)doc["data"]["status"]["car_status"]["frunk_open"];
         status_present =             (bool)doc["data"]["status"]["car_status"]["is_user_present"];
         unit_length = String((const char *)doc["data"]["units"]["unit_of_length"]) == "km" ? " Kms" : " Mi";
+        unit_temp = String((const char *)doc["data"]["units"]["unit_of_temperature"]) == "C" ? " C" : " F";
 
         String logline = "State:           " + state
                      + "\nSince:           " + since
@@ -162,8 +164,11 @@ void set_display() {
     lv_label_set_text(ui_kmstotal, (String(odometer) + unit_length).c_str());
 
     lv_label_set_text(ui_tempinsidenumber, String(temp_inside).c_str());
+    lv_arc_set_range(ui_tempinsidearc, 0, unit_temp == "C" ? 100 : 212);
     lv_arc_set_value(ui_tempinsidearc, temp_inside);
+
     lv_label_set_text(ui_tempoutsidenumber, String(temp_outside).c_str());
+    lv_arc_set_range(ui_tempoutsidearc, 0, unit_temp == "C" ? 100 : 212);
     lv_arc_set_value(ui_tempoutsidearc, temp_outside);
 
     lv_obj_set_style_bg_color(ui_healthpanel, lv_color_hex(status_healthy ? GREEN : RED), LV_STATE_DEFAULT);

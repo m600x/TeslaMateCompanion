@@ -8,9 +8,9 @@ This is a repo containing raw code to run a small Tesla remote dashboard on your
 Is it useful? Who knows but it has it's use for me.
 
 ## Functions
-- State of the car
-- Odometer
-- Inside/Outside temperature
+- State of the car (Online, Offline, Asleep, Driving, Charging, Updating)
+- Odometer (Kilometers or Miles)
+- Inside/Outside temperature (Celsius or Farhenheit)
 - Status of the car (healthy, locked, sentry, presence, doors, windows, trunk and frunk)
 - Battery level
 - Estimated range
@@ -20,6 +20,13 @@ Is it useful? Who knows but it has it's use for me.
 - [Lilygo T-Display S3](https://www.lilygo.cc/products/t-display-s3)
 - [TeslaMate](https://github.com/teslamate-org/teslamate)
 - [TeslaMateApi](https://github.com/tobiasehlert/teslamateapi)
+
+## Instructions
+- Clone the repo
+- Open it in VSC (that has PlatformIO)
+- Tune the main.cpp with your variables
+- Connect your T-Display S3 and upload
+- Enjoy
 
 ## Variables
 
