@@ -71,6 +71,7 @@ extern lv_obj_t *ui_main_battery_unit_label;
 extern lv_obj_t *ui_main_estimated_panel;
 extern lv_obj_t *ui_main_estimated_label;
 extern lv_obj_t *ui_main_estimated_value;
+extern lv_obj_t *ui_main_update_spinner;
 extern lv_obj_t *ui____initial_actions0;
 
 LV_IMG_DECLARE( ui_img_health_png);   // assets/health.png

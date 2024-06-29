@@ -66,7 +66,6 @@ bool status_frunk = false;
 bool status_present = false;
 String unit_length = "";
 String unit_temp = "";
-bool refresh_display = false;
 
 String millisToTime() {
     unsigned long seconds = millis() / 1000;
@@ -164,6 +163,8 @@ void wifi_connection() {
 
 void update() {
     logger("UPDT | Querying data");
+    lv_obj_set_style_opa(ui_main_update_spinner, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
+    lv_obj_set_style_opa(ui_main_elapsed, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
     http.begin(API_URL);
     http.setTimeout(API_TIMEOUT * 1000);
     if (API_AUTH)
@@ -172,61 +173,62 @@ void update() {
     String payload = http.getString();
     http.end();
     logger("UPDT | Response code: " + String(httpCode) + ", size: " + payload.length() + "\n> Received: " + payload);
-    if (httpCode == 200) {
+    if (httpCode != 200) {
+        elapsed = "Update error";
+    }
+    else {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, payload);
         if (error) {
             logger("UPDT | deserializeJson() failed: " + String(error.c_str()));
-            return;
+            elapsed = "JSON error";
         }
-        carname =            (const char *)doc["data"]["car"]["car_name"];
-        state =              (const char *)doc["data"]["status"]["state"];
-        since =              (const char *)doc["data"]["status"]["state_since"];
-        odometer =                    (int)doc["data"]["status"]["odometer"];
-        battery_level =               (int)doc["data"]["status"]["battery_details"]["battery_level"];
-        battery_range =               (int)doc["data"]["status"]["battery_details"]["est_battery_range"];
-        temp_inside =                 (int)doc["data"]["status"]["climate_details"]["inside_temp"];
-        temp_outside =                (int)doc["data"]["status"]["climate_details"]["outside_temp"];
-        status_healthy =             (bool)doc["data"]["status"]["car_status"]["healthy"];
-        status_locked =              (bool)doc["data"]["status"]["car_status"]["locked"];
-        status_sentry =              (bool)doc["data"]["status"]["car_status"]["sentry_mode"];
-        status_windows =             (bool)doc["data"]["status"]["car_status"]["windows_open"];
-        status_doors =               (bool)doc["data"]["status"]["car_status"]["doors_open"];
-        status_trunk =               (bool)doc["data"]["status"]["car_status"]["trunk_open"];
-        status_frunk =               (bool)doc["data"]["status"]["car_status"]["frunk_open"];
-        status_present =             (bool)doc["data"]["status"]["car_status"]["is_user_present"];
-        unit_length = String((const char *)doc["data"]["units"]["unit_of_length"]) == "km" ? " Kms" : " Mi";
-        unit_temp =   String((const char *)doc["data"]["units"]["unit_of_temperature"]) == "C" ? " C" : " F";
-
-        DateTime pastTime = DateTime(since.substring(0, 19).c_str());
-        DateTime now = DateTime(rtc.getTime("%FT%T").c_str());
-        TimeSpan diff = now - pastTime;
-        int days = diff.days();
-        int hours = diff.hours();
-        int minutes = diff.minutes();
-        int seconds = diff.seconds();
-        elapsed = (days > 0 ? (String(days) + "d ") : "")
-                + (hours > 0 ? (String(hours) + "h ") : "" )
-                + (minutes > 0 ? (String(minutes) + "m ") : "" )
-                + (seconds > 0 ? (String(seconds) + "s ") : "" ) + "ago";
-        logger("UPDT | State:           " + state
-           + "\nSince:           " + since
-           + "\nElapsed:         " + elapsed
-           + "\nOdometer:        " + odometer
-           + "\nBattery level:   " + battery_level
-           + "\nBattery range:   " + battery_range
-           + "\nTemp inside:     " + temp_inside
-           + "\nTemp outside:    " + temp_outside
-           + "\nStatus healthy:  " + (status_healthy ? "healthy" : "unhealthy")
-           + "\nStatus locked:   " + (status_locked ? "locked" : "unlocked")
-           + "\nStatus sentry:   " + (status_sentry ? "enabled" : "disabled")
-           + "\nStatus windows:  " + (status_windows ? "open" : "close")
-           + "\nStatus doors:    " + (status_doors ? "open" : "close")
-           + "\nStatus trunk:    " + (status_trunk ? "open" : "close")
-           + "\nStatus frunk:    " + (status_frunk ? "open" : "close")
-           + "\nStatus presence: " + (status_present ? "present" : "absent"));
-        refresh_display = true;
+        else {
+            carname =            (const char *)doc["data"]["car"]["car_name"];
+            state =              (const char *)doc["data"]["status"]["state"];
+            since =              (const char *)doc["data"]["status"]["state_since"];
+            odometer =                    (int)doc["data"]["status"]["odometer"];
+            battery_level =               (int)doc["data"]["status"]["battery_details"]["battery_level"];
+            battery_range =               (int)doc["data"]["status"]["battery_details"]["est_battery_range"];
+            temp_inside =                 (int)doc["data"]["status"]["climate_details"]["inside_temp"];
+            temp_outside =                (int)doc["data"]["status"]["climate_details"]["outside_temp"];
+            status_healthy =             (bool)doc["data"]["status"]["car_status"]["healthy"];
+            status_locked =              (bool)doc["data"]["status"]["car_status"]["locked"];
+            status_sentry =              (bool)doc["data"]["status"]["car_status"]["sentry_mode"];
+            status_windows =             (bool)doc["data"]["status"]["car_status"]["windows_open"];
+            status_doors =               (bool)doc["data"]["status"]["car_status"]["doors_open"];
+            status_trunk =               (bool)doc["data"]["status"]["car_status"]["trunk_open"];
+            status_frunk =               (bool)doc["data"]["status"]["car_status"]["frunk_open"];
+            status_present =             (bool)doc["data"]["status"]["car_status"]["is_user_present"];
+            unit_length = String((const char *)doc["data"]["units"]["unit_of_length"]) == "km" ? " Kms" : " Mi";
+            unit_temp =   String((const char *)doc["data"]["units"]["unit_of_temperature"]) == "C" ? " C" : " F";
+            DateTime pastTime = DateTime(since.substring(0, 19).c_str());
+            DateTime now = DateTime(rtc.getTime("%FT%T").c_str());
+            TimeSpan diff = now - pastTime;
+            elapsed = (diff.days() > 0 ? (String(diff.days()) + "d ") : "")
+                    + (diff.hours() > 0 ? (String(diff.hours()) + "h ") : "" )
+                    + (diff.minutes() > 0 ? (String(diff.minutes()) + "m ") : "" )
+                    + (diff.seconds() > 0 ? (String(diff.seconds()) + "s ") : "" ) + "ago";
+            logger("UPDT | State:           " + state
+               + "\nSince:           " + since
+               + "\nElapsed:         " + elapsed
+               + "\nOdometer:        " + odometer
+               + "\nBattery level:   " + battery_level
+               + "\nBattery range:   " + battery_range
+               + "\nTemp inside:     " + temp_inside
+               + "\nTemp outside:    " + temp_outside
+               + "\nStatus healthy:  " + (status_healthy ? "healthy" : "unhealthy")
+               + "\nStatus locked:   " + (status_locked ? "locked" : "unlocked")
+               + "\nStatus sentry:   " + (status_sentry ? "enabled" : "disabled")
+               + "\nStatus windows:  " + (status_windows ? "open" : "close")
+               + "\nStatus doors:    " + (status_doors ? "open" : "close")
+               + "\nStatus trunk:    " + (status_trunk ? "open" : "close")
+               + "\nStatus frunk:    " + (status_frunk ? "open" : "close")
+               + "\nStatus presence: " + (status_present ? "present" : "absent"));
+        }
     }
+    lv_obj_set_style_opa(ui_main_update_spinner, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
+    lv_obj_set_style_opa(ui_main_elapsed, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 }
 
 void set_display() {
@@ -263,7 +265,6 @@ void set_display() {
     lv_bar_set_value(ui_main_battery_bar, battery_level, LV_ANIM_OFF);
 
     lv_label_set_text(ui_main_estimated_value, (String(battery_range) + unit_length).c_str());
-    refresh_display = false;
 }
 
 void loop_data(void *pvParameters) {
@@ -306,9 +307,7 @@ void loop()
 {
     ArduinoOTA.handle();
     Debug.handle();
-    if (refresh_display) {
-        set_display();
-        lv_timer_handler();
-    }
+    set_display();
+    lv_timer_handler();
     delay(50);
 }

@@ -57,6 +57,7 @@ lv_obj_t *ui_main_battery_unit_label;
 lv_obj_t *ui_main_estimated_panel;
 lv_obj_t *ui_main_estimated_label;
 lv_obj_t *ui_main_estimated_value;
+lv_obj_t *ui_main_update_spinner;
 lv_obj_t *ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
