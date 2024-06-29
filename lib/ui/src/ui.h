@@ -25,55 +25,58 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 
-// SCREEN: ui_main
-void ui_main_screen_init(void);
-extern lv_obj_t *ui_main;
-extern lv_obj_t *ui_status;
-extern lv_obj_t *ui_kmstotal;
-extern lv_obj_t *ui_Panel1;
-extern lv_obj_t *ui_labelinterieur;
-extern lv_obj_t *ui_tempinsidearc;
-extern lv_obj_t *ui_tempinsidenumber;
-extern lv_obj_t *ui_Panel2;
-extern lv_obj_t *ui_labelexterieur;
-extern lv_obj_t *ui_tempoutsidearc;
-extern lv_obj_t *ui_tempoutsidenumber;
-extern lv_obj_t *ui_healthpanel;
-extern lv_obj_t *ui_lockedpanel;
-extern lv_obj_t *ui_sentrypanel;
-extern lv_obj_t *ui_userpanel;
-extern lv_obj_t *ui_windowspanel;
-extern lv_obj_t *ui_doorspanel;
-extern lv_obj_t *ui_frunkpanel;
-extern lv_obj_t *ui_trunkpanel;
-extern lv_obj_t *ui_Label1;
-extern lv_obj_t *ui_Label2;
-extern lv_obj_t *ui_kmsestimated;
-extern lv_obj_t *ui_Panel3;
-extern lv_obj_t *ui_pctnumber;
-extern lv_obj_t *ui_labelpct;
-extern lv_obj_t *ui_pctbar;
-extern lv_obj_t *ui_Image1;
-extern lv_obj_t *ui_Image2;
-extern lv_obj_t *ui_Image3;
-extern lv_obj_t *ui_Image4;
-extern lv_obj_t *ui_Image5;
-extern lv_obj_t *ui_Image6;
-extern lv_obj_t *ui_Image7;
-extern lv_obj_t *ui_Image8;
 // SCREEN: ui_wifi
 void ui_wifi_screen_init(void);
 extern lv_obj_t *ui_wifi;
-extern lv_obj_t *ui_Spinner1;
-extern lv_obj_t *ui_Label3;
-extern lv_obj_t *ui_ssidtext;
-extern lv_obj_t *ui_elapsedtime;
+extern lv_obj_t *ui_wifi_label;
+extern lv_obj_t *ui_wifi_spinner;
+extern lv_obj_t *ui_wifi_ssid_text;
+extern lv_obj_t *ui_wifi_elapsed_time;
+// SCREEN: ui_main
+void ui_main_screen_init(void);
+extern lv_obj_t *ui_main;
+extern lv_obj_t *ui_main_car_name;
+extern lv_obj_t *ui_main_elapsed;
+extern lv_obj_t *ui_main_status;
+extern lv_obj_t *ui_main_odometer;
+extern lv_obj_t *ui_main_temp_inside_background;
+extern lv_obj_t *ui_main_temp_inside_label;
+extern lv_obj_t *ui_main_temp_inside_arc;
+extern lv_obj_t *ui_main_temp_inside_value;
+extern lv_obj_t *ui_main_temp_outside_background;
+extern lv_obj_t *ui_main_temp_outside_label;
+extern lv_obj_t *ui_main_temp_outside_arc;
+extern lv_obj_t *ui_main_temp_outside_value;
+extern lv_obj_t *ui_main_healthy_panel;
+extern lv_obj_t *ui_main_healthy_image;
+extern lv_obj_t *ui_main_user_panel;
+extern lv_obj_t *ui_main_user_image;
+extern lv_obj_t *ui_main_sentry_panel;
+extern lv_obj_t *ui_main_sentry_image;
+extern lv_obj_t *ui_main_locked_panel;
+extern lv_obj_t *ui_main_locked_image;
+extern lv_obj_t *ui_main_windows_panel;
+extern lv_obj_t *ui_main_windows_image;
+extern lv_obj_t *ui_main_doors_panel;
+extern lv_obj_t *ui_main_doors_image;
+extern lv_obj_t *ui_main_frunk_panel;
+extern lv_obj_t *ui_main_frunk_image;
+extern lv_obj_t *ui_main_trunk_panel;
+extern lv_obj_t *ui_main_trunk_image;
+extern lv_obj_t *ui_main_battery_bar_panel;
+extern lv_obj_t *ui_main_battery_bar;
+extern lv_obj_t *ui_main_battery_panel;
+extern lv_obj_t *ui_main_battery_value;
+extern lv_obj_t *ui_main_battery_unit_label;
+extern lv_obj_t *ui_main_estimated_panel;
+extern lv_obj_t *ui_main_estimated_label;
+extern lv_obj_t *ui_main_estimated_value;
 extern lv_obj_t *ui____initial_actions0;
 
 LV_IMG_DECLARE( ui_img_health_png);   // assets/health.png
-LV_IMG_DECLARE( ui_img_lock_png);   // assets/lock.png
-LV_IMG_DECLARE( ui_img_sentry_png);   // assets/sentry.png
 LV_IMG_DECLARE( ui_img_present_png);   // assets/present.png
+LV_IMG_DECLARE( ui_img_sentry_png);   // assets/sentry.png
+LV_IMG_DECLARE( ui_img_lock_png);   // assets/lock.png
 LV_IMG_DECLARE( ui_img_window_png);   // assets/window.png
 LV_IMG_DECLARE( ui_img_doors_png);   // assets/doors.png
 LV_IMG_DECLARE( ui_img_frunk_png);   // assets/frunk.png

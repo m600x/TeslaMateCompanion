@@ -2,10 +2,14 @@
 #include <ArduinoOTA.h>
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
+#include <ESP32Time.h>
+#include <NTPClient.h>
 #include <TFT_eSPI.h>
+#include <WiFiUdp.h>
 #include <lvgl.h>
 #include <ui.h>
 #include "WiFi.h"
+#include "RTClib.h"
 #include "RemoteDebug.h"
 
 #define WIFI_SSID        "REPLACE_ME"
@@ -18,8 +22,11 @@
 #define API_USER         "REPLACE_ME"
 #define API_PASS         "REPLACE_ME"
 
+#define TZ_OFFSET        1
+
 #define POLLING_INTERVAL 30
 #define HOSTNAME         "TeslaMateCompanion"
+
 #define PIN_BTN_TOP      14
 #define PIN_BTN_BOTTOM   0
 #define GREEN            0x00B200
@@ -30,6 +37,9 @@
 HTTPClient http;
 TFT_eSPI tft = TFT_eSPI();
 RemoteDebug Debug;
+ESP32Time rtc(TZ_OFFSET * 3600);
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);
 
 static const uint16_t screenWidth  = 320;
 static const uint16_t screenHeight = 170;
@@ -37,8 +47,10 @@ static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf[ screenWidth * screenHeight / 10 ];
 
 int wifi_elapsed_time = 0;
+String carname = "";
 String state = "";
 String since = "";
+String elapsed = "";
 int odometer = 0;
 int battery_level = 0;
 int battery_range = 0;
@@ -54,10 +66,32 @@ bool status_frunk = false;
 bool status_present = false;
 String unit_length = "";
 String unit_temp = "";
+bool refresh_display = false;
+
+String millisToTime() {
+    unsigned long seconds = millis() / 1000;
+    unsigned long minutes = seconds / 60;
+    unsigned long hours = minutes / 60;
+
+    return (hours / 60 < 10 ? "0" : "") + String(hours % 24, DEC) + ":" +
+           (minutes % 60 < 10 ? "0" : "") + String(minutes % 60, DEC) + ":" +
+           (seconds % 60 < 10 ? "0" : "") + String(seconds % 60, DEC);
+}
 
 void logger(String msg) {
-    Serial.println(msg);
-    Debug.println(msg);
+    String payload = "T " + rtc.getTime("%F %T") + " | U " + millisToTime() + " | C" + String(xPortGetCoreID()) + " | " + msg;
+    Serial.println(payload);
+    Debug.println(payload);
+}
+
+void updateRTC() {
+    logger("RTC  | Start update");
+    timeClient.update();
+    time_t rawtime = timeClient.getEpochTime();
+    logger("RTC  | Received: " + timeClient.getFormattedTime() + " " + timeClient.getDay());
+    rtc.setTime(timeClient.getEpochTime());
+    rtc.getTime("%F %T");
+    logger("RTC  | End update");
 }
 
 void my_disp_flush( lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p )
@@ -100,9 +134,9 @@ void initOTA() {
 }
 
 void wifi_connection() {
-    logger("Start wifi connection");
+    logger("WIFI | Start wifi connection");
     lv_disp_load_scr(ui_wifi);
-    lv_label_set_text(ui_ssidtext, WIFI_SSID);
+    lv_label_set_text(ui_wifi_ssid_text, WIFI_SSID);
     WiFi.mode(WIFI_STA);
     WiFi.setHostname(HOSTNAME);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
@@ -111,8 +145,8 @@ void wifi_connection() {
             break ;
         if (i % 100 == 0) {
             wifi_elapsed_time += 1;
-            lv_label_set_text(ui_elapsedtime, (String(wifi_elapsed_time) + "s").c_str());
-            logger("Waiting wifi connection for " + String(wifi_elapsed_time) + "s");
+            lv_label_set_text(ui_wifi_elapsed_time, (String(wifi_elapsed_time) + "s").c_str());
+            logger("WIFI | Waiting wifi connection for " + String(wifi_elapsed_time) + "s");
         }
         lv_timer_handler();
         delay(10);
@@ -121,14 +155,15 @@ void wifi_connection() {
         WiFi.disconnect();
         wifi_connection();
     }
-    logger("Attributed IP: " + WiFi.localIP().toString());
+    logger("WIFI | Attributed IP: " + WiFi.localIP().toString());
     wifi_elapsed_time = 0;
+    updateRTC();
     lv_disp_load_scr(ui_main);
     lv_timer_handler();
 }
 
 void update() {
-    logger("> Querying data");
+    logger("UPDT | Querying data");
     http.begin(API_URL);
     http.setTimeout(API_TIMEOUT * 1000);
     if (API_AUTH)
@@ -136,14 +171,15 @@ void update() {
     int httpCode = http.GET();
     String payload = http.getString();
     http.end();
-    logger("> Response code: " + String(httpCode) + ", size: " + payload.length() + "\n> Received: " + payload);
+    logger("UPDT | Response code: " + String(httpCode) + ", size: " + payload.length() + "\n> Received: " + payload);
     if (httpCode == 200) {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, payload);
         if (error) {
-            logger("deserializeJson() failed: " + String(error.c_str()));
+            logger("UPDT | deserializeJson() failed: " + String(error.c_str()));
             return;
         }
+        carname =            (const char *)doc["data"]["car"]["car_name"];
         state =              (const char *)doc["data"]["status"]["state"];
         since =              (const char *)doc["data"]["status"]["state_since"];
         odometer =                    (int)doc["data"]["status"]["odometer"];
@@ -161,8 +197,21 @@ void update() {
         status_present =             (bool)doc["data"]["status"]["car_status"]["is_user_present"];
         unit_length = String((const char *)doc["data"]["units"]["unit_of_length"]) == "km" ? " Kms" : " Mi";
         unit_temp =   String((const char *)doc["data"]["units"]["unit_of_temperature"]) == "C" ? " C" : " F";
-        logger("State:           " + state
+
+        DateTime pastTime = DateTime(since.substring(0, 19).c_str());
+        DateTime now = DateTime(rtc.getTime("%FT%T").c_str());
+        TimeSpan diff = now - pastTime;
+        int days = diff.days();
+        int hours = diff.hours();
+        int minutes = diff.minutes();
+        int seconds = diff.seconds();
+        elapsed = (days > 0 ? (String(days) + "d ") : "")
+                + (hours > 0 ? (String(hours) + "h ") : "" )
+                + (minutes > 0 ? (String(minutes) + "m ") : "" )
+                + (seconds > 0 ? (String(seconds) + "s ") : "" ) + "ago";
+        logger("UPDT | State:           " + state
            + "\nSince:           " + since
+           + "\nElapsed:         " + elapsed
            + "\nOdometer:        " + odometer
            + "\nBattery level:   " + battery_level
            + "\nBattery range:   " + battery_range
@@ -176,50 +225,54 @@ void update() {
            + "\nStatus trunk:    " + (status_trunk ? "open" : "close")
            + "\nStatus frunk:    " + (status_frunk ? "open" : "close")
            + "\nStatus presence: " + (status_present ? "present" : "absent"));
+        refresh_display = true;
     }
 }
 
 void set_display() {
-    lv_label_set_text(ui_status, state.c_str());
-    lv_label_set_text(ui_kmstotal, (String(odometer) + unit_length).c_str());
+    lv_label_set_text(ui_main_car_name, carname.c_str());
+    lv_label_set_text(ui_main_status, state.c_str());
+    lv_label_set_text(ui_main_odometer, (String(odometer) + unit_length).c_str());
+    lv_label_set_text(ui_main_elapsed, elapsed.c_str());
 
-    lv_label_set_text(ui_tempinsidenumber, String(temp_inside).c_str());
-    lv_arc_set_range(ui_tempinsidearc, 0, unit_temp == "C" ? 100 : 212);
-    lv_arc_set_value(ui_tempinsidearc, temp_inside);
+    lv_label_set_text(ui_main_temp_inside_value, String(temp_inside).c_str());
+    lv_arc_set_range(ui_main_temp_inside_arc, 0, unit_temp == "C" ? 100 : 212);
+    lv_arc_set_value(ui_main_temp_inside_arc, temp_inside);
 
-    lv_label_set_text(ui_tempoutsidenumber, String(temp_outside).c_str());
-    lv_arc_set_range(ui_tempoutsidearc, 0, unit_temp == "C" ? 100 : 212);
-    lv_arc_set_value(ui_tempoutsidearc, temp_outside);
+    lv_label_set_text(ui_main_temp_outside_value, String(temp_outside).c_str());
+    lv_arc_set_range(ui_main_temp_outside_arc, 0, unit_temp == "C" ? 100 : 212);
+    lv_arc_set_value(ui_main_temp_outside_arc, temp_outside);
 
-    lv_obj_set_style_bg_color(ui_healthpanel, lv_color_hex(status_healthy ? GREEN : RED), LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_lockedpanel, lv_color_hex(status_locked ? GREEN : RED), LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_sentrypanel, lv_color_hex(status_sentry ? GREEN : GREY), LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_userpanel, lv_color_hex(status_present ? GREEN : GREY), LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_windowspanel, lv_color_hex(status_windows ? RED : GREEN), LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_doorspanel, lv_color_hex(status_doors ? RED : GREEN), LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_frunkpanel, lv_color_hex(status_frunk ? RED : GREEN), LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_trunkpanel, lv_color_hex(status_trunk ? RED : GREEN), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_main_healthy_panel, lv_color_hex(status_healthy ? GREEN : RED), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_main_locked_panel, lv_color_hex(status_locked ? GREEN : RED), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_main_sentry_panel, lv_color_hex(status_sentry ? GREEN : GREY), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_main_user_panel, lv_color_hex(status_present ? GREEN : GREY), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_main_windows_panel, lv_color_hex(status_windows ? RED : GREEN), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_main_doors_panel, lv_color_hex(status_doors ? RED : GREEN), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_main_frunk_panel, lv_color_hex(status_frunk ? RED : GREEN), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_main_trunk_panel, lv_color_hex(status_trunk ? RED : GREEN), LV_STATE_DEFAULT);
 
     lv_color_t battery_color = lv_color_hex(GREEN);
     if (battery_level <= 10)
         battery_color = lv_color_hex(RED);
     else if (battery_level <= 20)
         battery_color = lv_color_hex(ORANGE);
-    lv_obj_set_style_bg_color(ui_Panel3, battery_color, LV_PART_MAIN | LV_STATE_DEFAULT );
-    lv_label_set_text(ui_pctnumber, String(battery_level).c_str());
-    lv_obj_set_style_bg_color(ui_pctbar, battery_color, LV_PART_INDICATOR | LV_STATE_DEFAULT );
-    lv_bar_set_value(ui_pctbar, battery_level, LV_ANIM_OFF);
+    lv_obj_set_style_bg_color(ui_main_battery_panel, battery_color, LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_label_set_text(ui_main_battery_value, String(battery_level).c_str());
+    lv_obj_set_style_bg_color(ui_main_battery_bar, battery_color, LV_PART_INDICATOR | LV_STATE_DEFAULT );
+    lv_bar_set_value(ui_main_battery_bar, battery_level, LV_ANIM_OFF);
 
-    lv_label_set_text(ui_kmsestimated, (String(battery_range) + unit_length).c_str());
+    lv_label_set_text(ui_main_estimated_value, (String(battery_range) + unit_length).c_str());
+    refresh_display = false;
 }
 
 void loop_data(void *pvParameters) {
     wifi_connection();
     initOTA();
     Debug.begin(HOSTNAME);
-    Debug.setResetCmdEnabled(true);  // Enable the reset command
-    Debug.showProfiler(true);        // Profiler (Good to measure times, to optimize codes)
-    Debug.showColors(true);          // Colors
+    Debug.setResetCmdEnabled(true);
+    Debug.showProfiler(true);
+    Debug.showColors(true);
     Debug.showTime(true);
     while(true) {
         if (WiFi.status() != WL_CONNECTED)
@@ -253,7 +306,9 @@ void loop()
 {
     ArduinoOTA.handle();
     Debug.handle();
-    set_display();
-    lv_timer_handler();
+    if (refresh_display) {
+        set_display();
+        lv_timer_handler();
+    }
     delay(50);
 }

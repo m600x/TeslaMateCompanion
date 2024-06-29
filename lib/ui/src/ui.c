@@ -9,51 +9,54 @@
 ///////////////////// VARIABLES ////////////////////
 
 
-// SCREEN: ui_main
-void ui_main_screen_init(void);
-lv_obj_t *ui_main;
-lv_obj_t *ui_status;
-lv_obj_t *ui_kmstotal;
-lv_obj_t *ui_Panel1;
-lv_obj_t *ui_labelinterieur;
-lv_obj_t *ui_tempinsidearc;
-lv_obj_t *ui_tempinsidenumber;
-lv_obj_t *ui_Panel2;
-lv_obj_t *ui_labelexterieur;
-lv_obj_t *ui_tempoutsidearc;
-lv_obj_t *ui_tempoutsidenumber;
-lv_obj_t *ui_healthpanel;
-lv_obj_t *ui_lockedpanel;
-lv_obj_t *ui_sentrypanel;
-lv_obj_t *ui_userpanel;
-lv_obj_t *ui_windowspanel;
-lv_obj_t *ui_doorspanel;
-lv_obj_t *ui_frunkpanel;
-lv_obj_t *ui_trunkpanel;
-lv_obj_t *ui_Label1;
-lv_obj_t *ui_Label2;
-lv_obj_t *ui_kmsestimated;
-lv_obj_t *ui_Panel3;
-lv_obj_t *ui_pctnumber;
-lv_obj_t *ui_labelpct;
-lv_obj_t *ui_pctbar;
-lv_obj_t *ui_Image1;
-lv_obj_t *ui_Image2;
-lv_obj_t *ui_Image3;
-lv_obj_t *ui_Image4;
-lv_obj_t *ui_Image5;
-lv_obj_t *ui_Image6;
-lv_obj_t *ui_Image7;
-lv_obj_t *ui_Image8;
-
-
 // SCREEN: ui_wifi
 void ui_wifi_screen_init(void);
 lv_obj_t *ui_wifi;
-lv_obj_t *ui_Spinner1;
-lv_obj_t *ui_Label3;
-lv_obj_t *ui_ssidtext;
-lv_obj_t *ui_elapsedtime;
+lv_obj_t *ui_wifi_label;
+lv_obj_t *ui_wifi_spinner;
+lv_obj_t *ui_wifi_ssid_text;
+lv_obj_t *ui_wifi_elapsed_time;
+
+
+// SCREEN: ui_main
+void ui_main_screen_init(void);
+lv_obj_t *ui_main;
+lv_obj_t *ui_main_car_name;
+lv_obj_t *ui_main_elapsed;
+lv_obj_t *ui_main_status;
+lv_obj_t *ui_main_odometer;
+lv_obj_t *ui_main_temp_inside_background;
+lv_obj_t *ui_main_temp_inside_label;
+lv_obj_t *ui_main_temp_inside_arc;
+lv_obj_t *ui_main_temp_inside_value;
+lv_obj_t *ui_main_temp_outside_background;
+lv_obj_t *ui_main_temp_outside_label;
+lv_obj_t *ui_main_temp_outside_arc;
+lv_obj_t *ui_main_temp_outside_value;
+lv_obj_t *ui_main_healthy_panel;
+lv_obj_t *ui_main_healthy_image;
+lv_obj_t *ui_main_user_panel;
+lv_obj_t *ui_main_user_image;
+lv_obj_t *ui_main_sentry_panel;
+lv_obj_t *ui_main_sentry_image;
+lv_obj_t *ui_main_locked_panel;
+lv_obj_t *ui_main_locked_image;
+lv_obj_t *ui_main_windows_panel;
+lv_obj_t *ui_main_windows_image;
+lv_obj_t *ui_main_doors_panel;
+lv_obj_t *ui_main_doors_image;
+lv_obj_t *ui_main_frunk_panel;
+lv_obj_t *ui_main_frunk_image;
+lv_obj_t *ui_main_trunk_panel;
+lv_obj_t *ui_main_trunk_image;
+lv_obj_t *ui_main_battery_bar_panel;
+lv_obj_t *ui_main_battery_bar;
+lv_obj_t *ui_main_battery_panel;
+lv_obj_t *ui_main_battery_value;
+lv_obj_t *ui_main_battery_unit_label;
+lv_obj_t *ui_main_estimated_panel;
+lv_obj_t *ui_main_estimated_label;
+lv_obj_t *ui_main_estimated_value;
 lv_obj_t *ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -75,8 +78,8 @@ void ui_init( void )
 lv_disp_t *dispp = lv_disp_get_default();
 lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), true, LV_FONT_DEFAULT);
 lv_disp_set_theme(dispp, theme);
-ui_main_screen_init();
 ui_wifi_screen_init();
+ui_main_screen_init();
 ui____initial_actions0 = lv_obj_create(NULL);
-lv_disp_load_scr( ui_main);
+lv_disp_load_scr( ui_wifi);
 }

@@ -10,6 +10,7 @@ Is it useful? Who knows but it has it's use for me.
 ## Functions
 - State of the car (Online, Offline, Asleep, Driving, Charging, Updating)
 - Odometer (Kilometers or Miles)
+- Last update timestamp
 - Inside/Outside temperature (Celsius or Farhenheit)
 - Status of the car (healthy, locked, sentry, presence, doors, windows, trunk and frunk)
 - Battery level
@@ -46,5 +47,6 @@ All variables are in [main.cpp](./src/main.cpp). Code is compatible with TeslaMa
 |`API_AUTH`|`true`|Indicate if your TeslaMateApi need auth (TeslaMate installed with a basic auth by Traefik for example)|
 |`API_USER`||If `API_AUTH`, user of TeslaMate|
 |`API_PASS`||If `API_AUTH`, password of TeslaMate|
+|`TZ_OFFSET`|`1`|Hours of offset against GMT (1 is France Summer)|
 |`POLLING_INTERVAL`|`30`|Frequency of data refresh in seconds|
 |`HOSTNAME`|`TeslaMateCompanion`|Broadcasted network name of the device|
