@@ -35,7 +35,8 @@ Is it useful? Who knows but it has it's use for me.
 
 ## Variables
 
-All variables are in [main.cpp](./src/main.cpp). Code is compatible with TeslaMateApi behind a basic auth such as when you deploy TeslaMate using docker with Traefik.
+All variables are in [TeslaMateCompanion.h](./include/TeslaMateCompanion.h).
+Code is compatible with TeslaMateApi behind a basic auth such as when you deploy TeslaMate using docker with Traefik.
 
 | Name | Default value | Description
 |:-:|:-:|--|
