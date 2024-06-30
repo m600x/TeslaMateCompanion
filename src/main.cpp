@@ -33,7 +33,10 @@ void loop_data(void *pvParameters) {
             updateValues(response);
         }
         toggleUpdateSpinner(false);
-        delay(POLLING_INTERVAL * 1000);
+        if (data.lastAttemptSucceeded)
+            delay(POLLING_INTERVAL * 1000);
+        else
+            delay(1000);
     }
 }
 

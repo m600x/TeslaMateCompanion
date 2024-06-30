@@ -79,6 +79,7 @@ String retrieveData() {
     logger("HTTP | Response code: " + String(httpCode) + ", size: " + payload.length() + ", received:\n" + payload);
     if (httpCode != 200) {
         logger("HTTP | Request did not succeded, bailing out");
+        data.lastAttemptSucceeded = false;
         data.elapsed = "Update error";
         return "";
     }
@@ -86,9 +87,11 @@ String retrieveData() {
     DeserializationError error = deserializeJson(doc, payload);
     if (error) {
         logger("HTTP | deserializeJson() failed: " + String(error.c_str()));
+        data.lastAttemptSucceeded = false;
         data.elapsed = "JSON error";
         return "";
     }
+    data.lastAttemptSucceeded = true;
     logger("HTTP | End");
     return payload;
 }

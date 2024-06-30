@@ -36,7 +36,6 @@ void updateValues(String response) {
         data.elapsed = "JSON error";
     }
     else {
-        updateSingleValue("carname",        data.carname,(const char *)doc["data"]["car"]["car_name"]);
         updateSingleValue("state",          data.state,  (const char *)doc["data"]["status"]["state"]);
         updateSingleValue("since",          data.since,  (const char *)doc["data"]["status"]["state_since"]);
         updateSingleValue("odometer",       data.odometer,        (int)doc["data"]["status"]["odometer"]);
@@ -62,6 +61,8 @@ void updateValues(String response) {
         if (!doc["data"]["status"]["car_status"]["is_user_present"].isNull())
             updateSingleValue("status_present", data.status_present, (bool)doc["data"]["status"]["car_status"]["is_user_present"]);
 
+        if (data.carname == "" && doc["data"]["car"]["car_name"] != NULL)
+            data.carname = (const char *)doc["data"]["car"]["car_name"];
         if (data.unit_length == "" && doc["data"]["units"]["unit_of_length"] != NULL)
             data.unit_length = String((const char *)doc["data"]["units"]["unit_of_length"]) == "km" ? " Kms" : " Mi";
         if (data.unit_temp == "" && doc["data"]["units"]["unit_of_temperature"] != NULL)
