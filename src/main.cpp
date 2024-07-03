@@ -10,7 +10,13 @@ TeslaMateStruct data;
 
 void loop_display(void *pvParameters) {
     while(true) {
-        setMainScreen();
+        if (data.waitingConnection) {
+            lv_disp_load_scr(ui_wifi);
+        }
+        else {
+            lv_disp_load_scr(ui_main);
+            setMainScreen();
+        }
         lv_timer_handler();
         delay(50);
     }

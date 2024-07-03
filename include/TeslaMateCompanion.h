@@ -68,6 +68,7 @@ struct TeslaMateStruct {
     String unit_length = "";
     String unit_temp = "";
     bool lastAttemptSucceeded = false;
+    bool waitingConnection = false;
 };
 
 extern TeslaMateStruct data;

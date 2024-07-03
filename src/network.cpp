@@ -30,21 +30,20 @@ void initOTA() {
 
 void wifi_connection() {
     logger("WIFI | Start wifi connection");
-    lv_disp_load_scr(ui_wifi);
+    data.waitingConnection = true;
     lv_label_set_text(ui_wifi_ssid_text, WIFI_SSID);
     WiFi.mode(WIFI_STA);
     WiFi.setHostname(HOSTNAME);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
-    for (int i = 0; i < WIFI_TIMEOUT * 100 ; i++) {
+    for (int i = 0; i < WIFI_TIMEOUT * 10 ; i++) {
         if (WiFi.status() == WL_CONNECTED)
             break ;
-        if (i % 100 == 0) {
+        if (i % 10 == 0) {
             data.wifi_elapsed_time += 1;
             lv_label_set_text(ui_wifi_elapsed_time, (String(data.wifi_elapsed_time) + "s").c_str());
             logger("WIFI | Waiting wifi connection for " + String(data.wifi_elapsed_time) + "s");
         }
-        lv_timer_handler();
-        delay(10);
+        delay(100);
     }
     if (WiFi.status() != WL_CONNECTED) {
         WiFi.disconnect();
@@ -53,8 +52,7 @@ void wifi_connection() {
     logger("WIFI | Attributed IP: " + WiFi.localIP().toString());
     data.wifi_elapsed_time = 0;
     updateRTC();
-    lv_disp_load_scr(ui_main);
-    lv_timer_handler();
+    data.waitingConnection = false;
 }
 
 void updateRTC() {
