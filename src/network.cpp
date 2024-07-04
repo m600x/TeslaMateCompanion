@@ -67,6 +67,7 @@ void updateRTC() {
 
 String retrieveData() {
     logger("HTTP | Querying data");
+    data.state = "Request data...      ";
     http.begin(API_URL);
     http.setTimeout(API_TIMEOUT * 1000);
     if (API_AUTH)
@@ -78,7 +79,7 @@ String retrieveData() {
     if (httpCode != 200) {
         logger("HTTP | Request did not succeded, bailing out");
         data.lastAttemptSucceeded = false;
-        data.elapsed = "Update error";
+        data.state = "Error HTTP: " + String(httpCode);
         return "";
     }
     JsonDocument doc;
@@ -86,7 +87,7 @@ String retrieveData() {
     if (error) {
         logger("HTTP | deserializeJson() failed: " + String(error.c_str()));
         data.lastAttemptSucceeded = false;
-        data.elapsed = "JSON error";
+        data.state = "Error JSON";
         return "";
     }
     data.lastAttemptSucceeded = true;

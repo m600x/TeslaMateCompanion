@@ -26,13 +26,15 @@
 #define TZ_OFFSET        1
 #define POLLING_INTERVAL 30
 #define HOSTNAME         "TeslaMateCompanion"
+#define BRIGHTNESS       120
 
-#define PIN_BTN_TOP      14
-#define PIN_BTN_BOTTOM   0
 #define GREEN            0x00B200
 #define RED              0xFF0000
 #define GREY             0x303030
 #define ORANGE           0xE08700
+#define PIN_LCD_BL       38
+#define PIN_BTN_TOP      14
+#define PIN_BTN_BOTTOM   0
 
 static const uint16_t screenWidth  = 320;
 static const uint16_t screenHeight = 170;

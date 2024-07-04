@@ -402,7 +402,7 @@ ui_main_update_spinner = lv_spinner_create(ui_main,1000,90);
 lv_obj_set_width( ui_main_update_spinner, 18);
 lv_obj_set_height( ui_main_update_spinner, 18);
 lv_obj_set_x( ui_main_update_spinner, 144 );
-lv_obj_set_y( ui_main_update_spinner, -48 );
+lv_obj_set_y( ui_main_update_spinner, -74 );
 lv_obj_set_align( ui_main_update_spinner, LV_ALIGN_CENTER );
 lv_obj_clear_flag( ui_main_update_spinner, LV_OBJ_FLAG_CLICKABLE );    /// Flags
 lv_obj_set_style_opa(ui_main_update_spinner, 0, LV_PART_MAIN| LV_STATE_DEFAULT);

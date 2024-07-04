@@ -54,6 +54,9 @@ void setup()
     lv_init();
     tft.begin();
     tft.setRotation(1);
+    ledcSetup(0, 5000, 8);
+    ledcAttachPin(PIN_LCD_BL, 0);
+    ledcWrite(0, BRIGHTNESS);
     lv_disp_draw_buf_init( &draw_buf, buf, NULL, screenWidth * screenHeight / 10 );
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init( &disp_drv );

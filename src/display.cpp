@@ -24,6 +24,7 @@ void toggleUpdateSpinner(bool enabled) {
 
 void setMainScreen() {
     lv_label_set_text(ui_main_car_name, data.carname.c_str());
+    data.state[0] = toupper(data.state[0]);
     lv_label_set_text(ui_main_status, data.state.c_str());
     lv_label_set_text(ui_main_odometer, (String(data.odometer) + data.unit_length).c_str());
     lv_label_set_text(ui_main_elapsed, data.elapsed.c_str());

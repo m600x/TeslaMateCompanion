@@ -51,3 +51,4 @@ Code is compatible with TeslaMateApi behind a basic auth such as when you deploy
 |`TZ_OFFSET`|`1`|Hours of offset against GMT (1 is France Summer)|
 |`POLLING_INTERVAL`|`30`|Frequency of data refresh in seconds|
 |`HOSTNAME`|`TeslaMateCompanion`|Broadcasted network name of the device|
+|`BRIGHTNESS`|`120`|LCD brightness from 0 to 255|
